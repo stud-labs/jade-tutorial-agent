@@ -1,45 +1,50 @@
-#Introduction
+#Введение
 
-This is the markdown version of the tutorial [On IdeaHeap.com](http://www.ideaheap.com/2015/05/jade-setup-for-beginners/).
+Это markdown-версия учебника [На IdeaHeap.com](http://www.ideaheap.com/2015/05/jade-setup-for-beginners/).
 
-##Prerequisites
+##Предварительные условия
 
-This howto is written assuming that you have basic understanding of Java and that you are capable of downloading [Maven](https://maven.apache.org/) and get it on your command line. You may also want to choose an IDE (Eclipse or Intellij are both good choices).
+Данное руководство написано в предположении, что уже есть базовое понимание Java, и что вы способны загрузить [Maven](https://maven.apache.org/) и запустить его в командной строке. Также можно выбрать IDE (Eclipse или Intellij - хорошие варианты).
 
-For more information about what JADE is, visit [Their main website](http://jade.tilab.com/). It's a messaging framework and a collection of classes that allow the rapid creation of agent-based applications.
+Более подробную информацию о том, что представляет собой JADE, ищите на [их основном сайте](http://jade.tilab.com/). Jade - фреймворк для обмена сообщениями и набор классов, позволяющих быстро создавать агент-ориентированные приложения.
 
-##What's Agent-based programming?
+##Что такое агентное программирование?
 
-Agent based programming is a paradigm where modules of state and code work together to create an independent module that can "observe" the world around it and "output" actions into this world. A great example of a simple agent is an event-based service, where it is listening on a port and, once it has received input, reacts to this.
+Агентное программирование - это парадигма, в которой компоненты состояния и кода работают вместе, создавая независимый модуль, "наблюдающий" за окружающим миром и "выдающий" в этот мир свои действия. Примером простого агента выступает служба, обрабатывающая события, она прослушивает порт и, получив входные данные, реагирует на них.
 
-The model feels very natural to a person familiar with object oriented programming. JADE does a good job of enforcing this paradigm and, if you write a well-designed JADE application, your code will be relatively performant, as JADE is non-blocking, and uses only one thread per agent.
+Модель естественна для человека, знакомого с объектно-ориентированным программированием. JADE отлично справляется с реализацией этой парадигмы, и если вы напишете хорошо спроектированное JADE-приложение, ваш код будет достаточно производительным, поскольку агенты JADE неблокируемы и используют только один поток на одного агента.
 
-#Environment Setup
+#Настройка среды
 
-##Maven configuration
+##Конфигурация Maven
 
-Maven is a build system that takes care of bringing in dependencies, and allows you to write how to build your application in a declarative manner. It has a learning curve, but for the sake of this tutorial, you can use the code below with the commands given, and you'll probably only have to worry about adding dependencies as you find things.
+Maven - это система сборки, которая берет на себя добавление зависимостей (вспомогательных библиотек) и позволяет декларативно описать процесс сборки приложения. Она не проста в освоении, но в рамках данного руководства  можно просто использовать приведенный ниже код с указанными командами, остальные зависимости добавляются только по мере их появления.
 
-Your new project can start with the **pom.xml** in the example source. In this POM, we have included a logging framework (I don't want to bind everything to JADE), and the tools needed to include JADE.  The build profiles specify two different ways to start jade using two configuration files, which will be explained in the next section.  
+Ваш проект можно начать с редактирования **pom.xml** в этом примере. В него включены также фреймворк протоколирования (создание журнала помимо JADE), а также инструменты, необходимые для подключения в среде JADE.  Варианты сборки задают два различных способа запуска JADE. Для этого созданы два конфигурационных файла, которые будут описаны в следующем разделе.
 
-##Maven Calls
+##Запуск сборки проектов Maven
 
-Once this is set up, your application will be able to start using the following two commands:
+После того как все настроено, приложение запускается при помощи следующих двух команд (в разных терминалах, но в одной папке):
 
     mvn -Pjade-main exec:java
     mvn -Pjade-agent exec:java
 
-The first command starts our profile with a configuration that creates a default main container with no custom agents. The second command starts our profile, which starts a headless container running any custom agents specified in that configuration file.
+У меня получилось собрать запустить только при помощи ручного импорта сертификатов хранилищ (репозиториев) и дополнения команд дополнительными ключами. 
 
-#Container Configurations
+    mvn exec:java -Pjade-main  -Djavax.net.ssl.trustStore=keys -Djavax.net.ssl.trustStorePassword=changeit
+    mvn exec:java -Pjade-agent  -Djavax.net.ssl.trustStore=keys -Djavax.net.ssl.trustStorePassword=changeit
 
-The two configuration files mentioned in the exec plugin configurations define how to start the jade container.
+Первая команда запускает JADE с конфигурацией, создающей основной контейнер по умолчанию без пользовательских вами разработанных агентов. Вторая команда запускает JADE-контейнер без пользовательского интерфейса, но загружающий пользовательские (вами разработанные) агенты, указанные в этом конфигурационном файле.
 
-##Jade Main Container Configuration
+#Конфигурация контейнера
 
-JADE requires a main container to be running in order to be up, but it also supports the creation of additional containers to run agents in. A container can run many agents, and containers can be on many computers, allowing a distributed architecture. There can be only one main JADE container in a platform, but a backup container can be running that will take over in the event the original main container fails.
+Далее приведены два конфигурационных файла, указанных в настройке плагина ```exec```, файлы определяют, как запускать контейнер JADE.
 
-The first configuration file is located in *src/main/resource/jade-main-container.properties*. It contains the following:
+##Конфигурация главного контейнера JADE
+
+Для работы JADE требуется, чтобы основной контейнер был запущен, но он также поддерживает создание дополнительных контейнеров для запуска агентов. В контейнере может работать множество агентов, а сами контейнеры могут находиться на разных компьютерах, что позволяет реализовать распределенную архитектуру. В коммуникационной среде (платформе) допустим только один основной контейнер JADE, но можно запустить резервный контейнер, выполняющий свои функции в случае выхода из строя основного контейнера.
+
+Первый конфигурационный файл находится в *src/main/resource/jade-main-container.properties*. Он содержит следующее:
 
     gui=true
     host=localhost
@@ -47,13 +52,13 @@ The first configuration file is located in *src/main/resource/jade-main-containe
     local-port=10099
     jade_domain_df_autocleanup=true
 
-This will set up a main container that has a gui available for debugging and controlling your jade installation. It's configured to run on port 10099 with this.
+В результате создается основной контейнер, в котором будет доступен стандартный интерфейс пользователя для отладки и управления средой JADE. Он настраивается на порту 10099.
 
-The autocleanup line is a setting for jade's df agent, which is reponsible for knowing where different agents are that are capable of communicating about different message types. It doesn't clean up listing for killed agents by default, but with this configuration, it does.
+Строка autocleanup - это настройка для агента JADE 'df', который отвечает за то, чтобы знать, где находятся различные агенты, способные передавать сообщения. По умолчанию JADE не очищает списки уже убитых агентов, но в данной конфигурации такая очиска включена.
 
-##Jade Agent Container Configuration
+##Конфигурация контейнера агента JADE
 
-The agent container is designed to be unobtrusive and easy to kill. It is headless, and connects to the main container. Below is our agent container configuration.
+Контейнер агента спроектирован таким образом, чтобы быть ненавязчивым и легко уничтожаемым. Он запускается без интерфейса пользователя и подключается к основному контейнеру. Ниже приведена конфигурация контейнера для нашего агента.
 
     agents=\
         sample-agent-1:com.ideaheap.tutorial.jade.agents.sample.SampleAgent(sample-agent-2);\
@@ -63,26 +68,26 @@ The agent container is designed to be unobtrusive and easy to kill. It is headle
     main=false
     no-display=true
 
-Because Maven has a little trouble cleaning up un-stopped projects, if you want to create a separate project only for starting jade-main, that is fine. Having this run as a separate executable lets you keep its gui active while you are starting and killing the other jvm started with the *jade-agent* profile.
+Поскольку в Maven-е есть некоторые проблемы с очисткой неостановленных проектов, и, если вы хотите создать отдельный проект только для запуска jade-main, то это вполне терпимо. Запуск этого проекта как отдельного исполняемого файла позволит вам сохранить активным его интерфейс пользователя, пока вы создаете и завершаете другие jvm (виртуальные машины Java), запущенные с помощью профиля *jade-agent*.
 
-#Creating a sample agent
+#Создание примера вашего агента
 
-This tutorial doesn't just give an example agent, it also is a recommendation on how to go about architecting your agent-based program. Agents naturally create modular code but clearly defining how modules should communicate - through messages between agents. I have opted for the following directory structure:
+Данный учебник не просто представляет пример агента, но и включает ряд рекомендаций по архитектуре исходного кода программы агента. Агентное проектирование естественным образом приводит к модульному коду, при этом четко определяется, как модули должны взаимодействовать - при помощи передачи сообщений между агентами. Мы для вас создали следующую структуру каталогов:
 
 <pre>
 base.package.name.agents.agentName.AgentNameAgent
                                   .behaviors.Behavior
 </pre>
 
-Each agent follows this packaging setup. We'll now go through each of these things.
+Каждый агент следует этой настройке пакета. Рассмотрим каждый из них подробнее.
 
-##The Agent Class
+##Класс, представляющий агента
 
-In the directory structure above, this class would be **base.package.name.agents.agentName.AgentNameAgent**.  I come from a background of very long names, and memory is cheap these days, so this does not bother me. This package scheme creates a natural encapsulation for all the helper classes that show up as you build out an agent.
+В приведенной выше структуре каталогов этот класс будет **base.package.name.agents.agentName.AgentNameAgent**.  Любители очень длинных имен идентификаторов не смущаются таких своих привычек: память в наше время стоит дешево. Такая схема пакетов создает естественную инкапсуляцию для всех вспомогательных классов, появляющихся по мере проектирования агента.
 
-The AgentNameAgent is responsible for defining an agent configuration, and the code written inside an agent follows the design of "Inversion of Control" or "Dependency Injection" without the use of a framework (like Spring).
+AgentNameAgent отвечает за задание конфигурации агента, а код, реализованный внутри агента, следует шаблону проектирования "инверсии управления" или "инъекции зависимостей" без использования дополнительного фреймворка, например, Spring.
 
-In the example project, this was named the "SampleAgent". Below is the code for this agent:
+В данном примере созданный агент назван "SampleAgent". Ниже приведен его программный код:
 
     public class SampleAgent extends Agent {
         private static final Logger logger = LoggerFactory.getLogger(SampleAgent.class);
@@ -98,18 +103,18 @@ In the example project, this was named the "SampleAgent". Below is the code for 
         }
     }
 
-This is all that should be in an agent class, save registry code (which will be covered in the next tutorial). The Agent is responsible for wiring together the classes that make up its behaviors.
+Приведен только  самый необходимый код, формирующий класс агента, за исключением кода реестра (который будет рассмотрен в следующем этапе). Данный агент отвечает за обеспечение совместного функционирования классов, формирующих его поведение.
 
-##The Behaviour Class
+##Класс описания поведения
 
-The behaviour class is where all the action is. There are some very important notes to this class: the most important of which is that everything done in this class must be non-blocking (i.e. don't go making long-running calls to databases or external services on the main thread here). Each agent has one thread that multiplexes EVERY behaviour.
+Класс поведения инкапсулирует все действия. Тут надо сделать несколько очень важных замечаний: самое главное из них - все, что делается в этом классе, должно быть неблокируемым (т.е. не надо делать долго обрабатываемых обращений к базам данных или внешним сервисам в главном потоке). У каждого агента есть один поток, который мультиплексирует КАЖДОЕ поведение.
 
-This sort of requirement basically guarantees that you'll be writing a state machine, because complicated interactions will naturally lead to this. The sample behavior is a three part behavior that includes sending, receiving, and replying to a message.
+Подобное требование практически гарантирует, что модель поведения агента будет 'машиной состояний', поскольку сложные взаимодействия естественным образом приведут к такой модели. Данный пример реализации поведения включает в себя три звена: отправка, получение и ответ на сообщение.
 
-###Method Breakdown
+###Разбор по отдельным методам
 
 #####action()
-This class is run by a small state machine defined here:
+Вот небольшая машина состояний, определенная следующим образом:
 
     @Override
     public void action() {
@@ -128,11 +133,11 @@ This class is run by a small state machine defined here:
         }
     }
 
-This method, which is a required part of any class implementing Behaviour, is called over and over again. You may be wondering what that *block()* method is doing there after I had emphasized how important it is for things to be non-blocking. In this case, block() is actually a signal to the containing agent that it should not call this action again until after it has a reason to think things have changed. This is most often the receipt of a message.  In this way, *block()* is actually non-blocking! This also means that any code put after a block() is still going to run immediately.
+Данный метод, являющийся обязательной частью любого класса, реализующего интерфейс Behaviour, вызывается средой JADE непрерывно в цикле. Возникает вопрос, что делает метод *block()* в этом коде после того, как уже было подчеркнуто, насколько важно, чтобы действия были неблокируемыми. В данном случае метод ```block()``` фактически является сигналом для агента-контейнера, что он не должен вызывать это действие снова до тех пор, пока у него не появится причина считать, что ситуация изменилась. Чаще всего это получение сообщения.  Таким образом, *block()* фактически является неблокирующим! Это также означает, что любой код, помещенный после блока(), все равно будет выполнен немедленно.
 
 #####startIncrementing()
 
-Our behavior begins with a state that creates and sends a message off to a designated receiving agent. The message is built to send just the number 1 to the agent we sent in as a part of our constructor. The builder for this will also be discussed. 
+Наше поведение начинается с состояния, которое создает и отправляет некоторое сообщение назначенному агенту-получателю. Задача сообщения - послать число 1 агенту-получателю прием это часть конструктора. Конструктор ```build()``` также будет рассмотрен далее.
 
     private void startIncrementing() {
         agent.send(inform().toLocal(otherAgentName).withContent(1).build());
@@ -141,7 +146,7 @@ Our behavior begins with a state that creates and sends a message off to a desig
 
 #####continueIncrementing()
 
-The continueIncrementing state utilizes a wrapper that checks for a pending message, and if it exists, parses the content of that message into an integer and calls the defined callback:
+Состояние *continueIncrementing* использует 'обертку', которая проверяет наличие нового сообщения, и если оно уже есть преобразует его содержимое в целое число и вызывает определенный обработчик (обратный вызов, callback):
 
     private void continueIncrementing() {
         listen(agent, this).forInteger((toIncrement) -> {
@@ -154,11 +159,11 @@ The continueIncrementing state utilizes a wrapper that checks for a pending mess
         });
     }
 
-The callback is set to send the integer it was given as a message to the agent defined in its constructor.
+Обработчик реализует отправку полученного целого числа из принятого сообщения агенту, заданному в его конструкторе.
 
 #####stopIncrementing()
 
-The stopIncrementing class showcases options available to you if you are sure that your experiment is done. You can just kill the agent that was doing the work, you can just set your behavior's done() method to return "true", or you can do what this example shows: kill the entire container.
+Класс *stopIncrementing* демонстрирует завершенность действия, чтобы удостовериться, что эксперимент с посылкой сообщений успешен. Можно просто уничтожить отработавшего агента, а можно запрограммировать метод поведения ```done()``` так, чтобы он возвращал "true", а можно поступить так, как в данном примере: уничтожить весь контейнер.
 
     private void stopIncrementing() {
         listen(agent, this).forInteger((toIgnore) -> {
@@ -167,12 +172,14 @@ The stopIncrementing class showcases options available to you if you are sure th
         });
     }
 
-#Conclusion
+#Заключение
 
-With this basic setup, you should be able to create a simple group of agents that can communicate with each other inside of a maven managed project. The **listen** and **inform** functions you have seen are part of a small set of classes in this project which encourage a more fluent-style use of JADE. They are just the beginning, and will be built out considerably.
+С помощью этого простого примера создана группа простых агентов, взаимодействующих друг с другом внутри проекта под управлением Maven-а. Функции **listen** и **inform**, приведенные ранее, являются частью небольшого набора классов  проекта, стимулирующие программиста к более свободному использованию JADE. И это только начало...
 
-**All code is available for free on [GitHub](https://github.com/IdeaHeap/jade-tutorial-agent).**
+**Весь код доступен свободно на [GitHub](https://github.com/IdeaHeap/jade-tutorial-agent)** (оригинал проекта),
 
-**Challenge:** this example only has two agents communicating with each other for incrementing. Try making a ring of three. What happens if it's an agent "love triangle", and two agents are set to send messages to the same agent?
+Данная адаптация, также свободная, - **[Github](https://github.com/stud-labs/jade-tutorial-agent)**
+
+**Задача:** в этом примере только два агента взаимодействуют друг с другом для увеличения счетчика. Попробуйте сделать кольцо из трех агентов. Что произойдет, если будет агентский "любовный треугольник", и два агента будут настроены на отправку сообщений одному и тому же агенту?
 
 
