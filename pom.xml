@@ -58,7 +58,10 @@
                             <mainClass>jade.Boot</mainClass>
                             <arguments>
                                 <argument>-conf</argument>
+                                <!--
                                 <argument>src/main/resources/jade-agent-container.properties</argument>
+                                -->
+                                <argument>src/main/resources/jade-agent-container-my-agent.properties</argument>
                             </arguments>
                         </configuration>
                     </plugin>

@@ -66,7 +66,7 @@ public class IncrementBaseNumber extends Behaviour {
     private void stopIncrementing() {
         listen(agent, this).forInteger((toIgnore) -> {
             logger.info("I'm just going to ignore this: " + toIgnore);
-            ContainerKiller.killContainerOf(agent);
+            // ContainerKiller.killContainerOf(agent);
         });
     }
 

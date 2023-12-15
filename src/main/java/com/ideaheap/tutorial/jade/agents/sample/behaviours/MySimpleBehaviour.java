@@ -13,7 +13,7 @@ import jade.core.behaviours.SimpleBehaviour;
 
 public class MySimpleBehaviour extends SimpleBehaviour{
     private MyAgent agent;
-    private String otherAgentName;
+    private String otherAgentName; 
 
     private static final Logger logger = LoggerFactory.getLogger(IncrementBaseNumber.class);
 
@@ -24,19 +24,23 @@ public class MySimpleBehaviour extends SimpleBehaviour{
 
     @Override
     public void action() {
-        if (agent.state>5) {
-            //ContainerKiller.killContainerOf(agent);
+        if (agent.state>10) {
             this.agent.removeBehaviour(this);
+            // Kill myself
+            ContainerKiller.killContainerOf(agent);
             return;
         };
         if (agent.state<=5) {
-            logger.info("Hi! step: " + state.toString() + "!");
+            logger.info("Hi! step: " + agent.state.toString() + "!");
         };
         if (agent.state == 1) {
-            // agent.addBehaviour(new MyCyclicBehaviour(agent));
+            agent.addBehaviour(new MyCyclicBehaviour(agent));
+        }
+        if (agent.state == 3) {
+            agent.addBehaviour(new MyOneShotBehaviour(agent));
         }
         try {
-            TimeUnit.MICROSECONDS.sleep(5000);
+            TimeUnit.MILLISECONDS.sleep(5000);
         } catch (Exception e){
             logger.info("WARNING: Excaption: " + e.toString() + ".");
         }
