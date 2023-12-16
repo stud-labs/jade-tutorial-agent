@@ -60,8 +60,9 @@
                                 <argument>-conf</argument>
                                 <!--
                                 <argument>src/main/resources/jade-agent-container.properties</argument>
-                                -->
                                 <argument>src/main/resources/jade-agent-container-my-agent.properties</argument>
+                                -->
+                                <argument>src/main/resources/jade-agent-container-thaks-agent.properties</argument>
                             </arguments>
                         </configuration>
                     </plugin>
